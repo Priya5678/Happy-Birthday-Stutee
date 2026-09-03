@@ -39,49 +39,16 @@ body{
     user-select:none;
 }
 
-/* =========================
-   CANVAS FOR TOUCH PETALS
-========================= */
-#petalCanvas{
+/* ===================================================
+   CANVAS: JUGNU (FIREFLIES), DUST & SUNFLOWER PETALS
+=================================================== */
+#fxCanvas{
     position:fixed;
     inset:0;
     width:100%;
     height:100%;
     pointer-events:none;
     z-index:9999;
-}
-
-/* =========================
-   BACKGROUND GLOW PARTICLES
-========================= */
-.particles{
-    position:fixed;
-    inset:0;
-    overflow:hidden;
-    pointer-events:none;
-    z-index:2;
-}
-
-.particle{
-    position:absolute;
-    border-radius:50%;
-    background: radial-gradient(circle, #ffffff 30%, #fde047 60%, rgba(253, 224, 71, 0) 100%);
-    box-shadow: 0 0 10px #fde047, 0 0 20px #e9d5ff;
-    animation:particleFloat linear infinite;
-}
-
-.particle:nth-child(1){width:5px;height:5px;left:8%;top:95%;animation-duration:9s;}
-.particle:nth-child(2){width:4px;height:4px;left:22%;top:85%;animation-duration:12s;}
-.particle:nth-child(3){width:6px;height:6px;left:38%;top:100%;animation-duration:10s;}
-.particle:nth-child(4){width:5px;height:5px;left:55%;top:90%;animation-duration:14s;}
-.particle:nth-child(5){width:7px;height:7px;left:72%;top:98%;animation-duration:11s;}
-.particle:nth-child(6){width:4px;height:4px;left:88%;top:82%;animation-duration:13s;}
-
-@keyframes particleFloat{
-    0%{ transform:translateY(0) scale(.3); opacity:0; }
-    25%{ opacity:.9; }
-    80%{ opacity:.7; }
-    100%{ transform:translateY(-115vh) scale(1.3); opacity:0; }
 }
 
 /* ===================================================
@@ -381,8 +348,7 @@ body{
 
 /* =========================================================================
    SLOW-MOTION TEXT ANIMATION:
-   Starts immediately ON THE PHOTO with bright golden bloom, 
-   then glides down in SLOW-MOTION to the bottom!
+   Starts immediately on the photo with golden bloom, then glides down!
 ========================================================================= */
 .textArea{
     margin-top:auto;
@@ -390,30 +356,25 @@ body{
     width:100%;
     text-align:center;
     z-index:30;
-    /* 4.8 seconds slow-motion cinematic descent */
     animation:slowMotionDescent 4.8s cubic-bezier(0.25, 1, 0.35, 1) forwards;
 }
 
 @keyframes slowMotionDescent{
     0%{
-        /* Visible immediately right on top of the photo */
         opacity:1;
         transform:translateY(-240px) scale(1.15);
         filter:drop-shadow(0 0 30px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 50px rgba(255, 255, 255, 0.8));
     }
     30%{
-        /* Holds on the photo so user sees it right at opening */
         opacity:1;
         transform:translateY(-240px) scale(1.15);
         filter:drop-shadow(0 0 25px rgba(250, 204, 21, 0.9));
     }
     70%{
-        /* Glides down gracefully in slow motion */
         transform:translateY(-80px) scale(1.06);
         filter:drop-shadow(0 0 15px rgba(250, 204, 21, 0.7));
     }
     100%{
-        /* Settles perfectly at bottom position */
         opacity:1;
         transform:translateY(0px) scale(1);
         filter:drop-shadow(0 4px 15px rgba(0,0,0,0.5));
@@ -545,25 +506,15 @@ body{
 <body>
 
 <!-- AUDIO ELEMENT: aji_tor_din.mp3 -->
-<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" loop></audio>
+<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" autoplay playsinline></audio>
 
 <!-- MUSIC TOGGLE BUTTON -->
 <div class="musicBtn" id="musicBtn" title="Play/Pause Music">
     <span id="musicIcon">🎵</span>
 </div>
 
-<!-- CANVAS FOR TOUCH PETALS -->
-<canvas id="petalCanvas"></canvas>
-
-<!-- FLOATING PARTICLES -->
-<div class="particles">
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-</div>
+<!-- FULLSCREEN CANVAS FOR JUGNU (FIREFLIES), DUST & PETALS -->
+<canvas id="fxCanvas"></canvas>
 
 <!-- TOP BRANDING (OUTSIDE CARD) -->
 <div class="topBrandOuter">
@@ -587,7 +538,7 @@ body{
 
     <div class="counter" id="counter">01 / 15</div>
 
-    <!-- ANIMATED BIRTHDAY TEXT (APPEARS ON PHOTO, THEN GLIDES DOWN IN SLOW-MOTION) -->
+    <!-- ANIMATED BIRTHDAY TEXT (SLOW-MOTION DESCENT) -->
     <div class="textArea">
         <div class="smallText">Happy</div>
         <div class="birthdayText">Birthday</div>
@@ -623,7 +574,6 @@ const photos = [
     "https://i.ibb.co/5grkKkj1/IMG-20260903-WA0006.jpg"
 ];
 
-// Helper to bind image sources with automatic proxy failover
 function bindImageSrc(imgElem, url) {
     let triedProxy = false;
     imgElem.referrerPolicy = "no-referrer";
@@ -637,7 +587,6 @@ function bindImageSrc(imgElem, url) {
     imgElem.src = url;
 }
 
-// Preload Images
 photos.forEach(url => {
     const img = new Image();
     bindImageSrc(img, url);
@@ -656,18 +605,15 @@ function buildFrame(index){
     const container = document.createElement("div");
     container.className = "imgContainer";
 
-    // 1. Blurred duplicate inside photo frame
     const blurImg = document.createElement("img");
     blurImg.className = "frameBlurredBg";
     bindImageSrc(blurImg, photos[index]);
 
-    // 2. Main Crisp Photo
     const mainImg = document.createElement("img");
     mainImg.className = "mainImg";
     mainImg.alt = "Birthday Photo";
     bindImageSrc(mainImg, photos[index]);
 
-    // 3. Shine effect
     const shine = document.createElement("div");
     shine.className = "shine";
 
@@ -698,67 +644,72 @@ function showPhoto(index){
 
 showPhoto(current);
 
-// Slideshow Loop
 setInterval(() => {
     current = (current + 1) % photos.length;
     showPhoto(current);
 }, SLIDE_MS);
 
 /* ============================================================
-   SONG HANDLER (aji_tor_din.mp3) - AUTOPLAYS ON LOAD / FIRST TOUCH
+   AUTOPLAY & MUSIC CONTROLLER (aji_tor_din.mp3)
 ============================================================ */
 const audio = document.getElementById("bgAudio");
 const musicBtn = document.getElementById("musicBtn");
 const musicIcon = document.getElementById("musicIcon");
 
-function triggerPlay() {
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            musicBtn.classList.add("musicPlaying");
-            musicIcon.textContent = "🔊";
+function updateMusicState(playing) {
+    if (playing) {
+        musicBtn.classList.add("musicPlaying");
+        musicIcon.textContent = "🔊";
+    } else {
+        musicBtn.classList.remove("musicPlaying");
+        musicIcon.textContent = "🎵";
+    }
+}
+
+function playAudio() {
+    const promise = audio.play();
+    if (promise !== undefined) {
+        promise.then(() => {
+            updateMusicState(true);
         }).catch(() => {
-            // Browser restricted autoplay without gesture
-            musicBtn.classList.remove("musicPlaying");
-            musicIcon.textContent = "🎵";
+            updateMusicState(false);
         });
     }
 }
 
-// 1. Try to autoplay as soon as page loads
-window.addEventListener("load", triggerPlay);
-document.addEventListener("DOMContentLoaded", triggerPlay);
+playAudio();
+document.addEventListener("DOMContentLoaded", playAudio);
+window.addEventListener("load", playAudio);
 
-// 2. Fallback: Browser policy mandates touch/click gesture
-const unlockAudio = () => {
-    if (audio.paused) {
-        triggerPlay();
+const autoStartEvents = ["pointerdown", "touchstart", "scroll", "mousemove", "keydown"];
+function quickUnlock() {
+    if (audio.paused && audio.currentTime === 0) {
+        playAudio();
     }
-};
-window.addEventListener("pointerdown", unlockAudio, { once: true });
-window.addEventListener("touchstart", unlockAudio, { once: true });
-window.addEventListener("click", unlockAudio, { once: true });
+    autoStartEvents.forEach(e => window.removeEventListener(e, quickUnlock));
+}
+autoStartEvents.forEach(e => window.addEventListener(e, quickUnlock, { passive: true }));
 
-// 3. Music Button Click (Toggle on/off)
+audio.addEventListener("ended", () => {
+    updateMusicState(false);
+    audio.currentTime = 0;
+});
+
 musicBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (audio.paused) {
-        audio.play();
-        musicBtn.classList.add("musicPlaying");
-        musicIcon.textContent = "🔊";
+        audio.play().then(() => updateMusicState(true));
     } else {
         audio.pause();
-        musicBtn.classList.remove("musicPlaying");
-        musicIcon.textContent = "🔇";
+        updateMusicState(false);
     }
 });
 
-/* ============================================================
-   FALLING SUNFLOWER PETALS PHYSICS (ON TOUCH / CLICK)
-============================================================ */
-const canvas = document.getElementById("petalCanvas");
+/* =========================================================================
+   REALISTIC JUGNU (FIREFLIES), GLOWING DUST & SUNFLOWER PETALS CANVAS
+========================================================================= */
+const canvas = document.getElementById("fxCanvas");
 const ctx = canvas.getContext("2d");
-let petals = [];
 
 function resizeCanvas(){
     canvas.width = window.innerWidth;
@@ -767,6 +718,105 @@ function resizeCanvas(){
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
+// 1. JUGNU (FIREFLY) CLASS: Natural Wandering and Soft Breathing Glow
+class Jugnu {
+    constructor(){
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2.5 + 2.2;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.speedY = (Math.random() - 0.5) * 0.8;
+        this.glow = Math.random() * Math.PI * 2;
+        this.glowSpeed = Math.random() * 0.04 + 0.02; // soft pulsation
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = Math.random() * 0.03 + 0.01;
+    }
+
+    update(){
+        this.wobble += this.wobbleSpeed;
+        this.speedX += Math.sin(this.wobble) * 0.04;
+        this.speedY += Math.cos(this.wobble) * 0.04;
+
+        // clamp speed
+        this.speedX = Math.max(-1.1, Math.min(1.1, this.speedX));
+        this.speedY = Math.max(-1.1, Math.min(1.1, this.speedY));
+
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        // wrap edges
+        if(this.x < -30) this.x = canvas.width + 20;
+        if(this.x > canvas.width + 30) this.x = -20;
+        if(this.y < -30) this.y = canvas.height + 20;
+        if(this.y > canvas.height + 30) this.y = -20;
+
+        this.glow += this.glowSpeed;
+    }
+
+    draw(){
+        // Breathing brightness (sine wave)
+        const alpha = Math.max(0.12, (Math.sin(this.glow) + 1) / 2);
+        
+        ctx.save();
+        ctx.shadowColor = "rgba(253, 224, 71, 0.9)";
+        ctx.shadowBlur = this.size * 5.5;
+
+        // Firefly Core & Glow
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(254, 240, 138, ${alpha})`;
+        ctx.fill();
+
+        // Inner bright white spark
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 1.2})`;
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+// 2. GLOWING FAIRY DUST: Drifting gently in ambient air
+class DustParticle {
+    constructor(){
+        this.reset(true);
+    }
+
+    reset(initial = false){
+        this.x = Math.random() * canvas.width;
+        this.y = initial ? Math.random() * canvas.height : canvas.height + 10;
+        this.size = Math.random() * 1.8 + 0.8;
+        this.vy = -(Math.random() * 0.5 + 0.2); // floats upward
+        this.vx = (Math.random() - 0.5) * 0.35;
+        this.alpha = Math.random() * 0.6 + 0.2;
+        this.sway = Math.random() * Math.PI * 2;
+        this.swaySpeed = Math.random() * 0.02 + 0.01;
+    }
+
+    update(){
+        this.sway += this.swaySpeed;
+        this.x += this.vx + Math.sin(this.sway) * 0.3;
+        this.y += this.vy;
+
+        if(this.y < -15 || this.x < -20 || this.x > canvas.width + 20){
+            this.reset();
+        }
+    }
+
+    draw(){
+        ctx.save();
+        ctx.fillStyle = `rgba(253, 224, 71, ${this.alpha})`;
+        ctx.shadowColor = "rgba(250, 204, 21, 0.6)";
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// 3. SUNFLOWER PETAL BURST ON TOUCH/CLICK
 class SunflowerPetal {
     constructor(x, y){
         this.x = x;
@@ -836,6 +886,11 @@ class SunflowerPetal {
     }
 }
 
+// Populate Jugnu & Dust
+const jugnuArray = Array.from({ length: 28 }, () => new Jugnu());
+const dustArray = Array.from({ length: 45 }, () => new DustParticle());
+let petals = [];
+
 function spawnPetalsAt(x, y){
     for(let i = 0; i < 16; i++){
         petals.push(new SunflowerPetal(x, y));
@@ -846,8 +901,23 @@ window.addEventListener("pointerdown", (e) => {
     spawnPetalsAt(e.clientX, e.clientY);
 });
 
-function animatePetals(){
+// Master FX Render Loop
+function renderFX(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw Floating Dust
+    for(let i = 0; i < dustArray.length; i++){
+        dustArray[i].update();
+        dustArray[i].draw();
+    }
+
+    // 2. Draw Flying Jugnu (Fireflies)
+    for(let i = 0; i < jugnuArray.length; i++){
+        jugnuArray[i].update();
+        jugnuArray[i].draw();
+    }
+
+    // 3. Draw Touch Petals
     for(let i = petals.length - 1; i >= 0; i--){
         petals[i].update();
         petals[i].draw();
@@ -855,9 +925,10 @@ function animatePetals(){
             petals.splice(i, 1);
         }
     }
-    requestAnimationFrame(animatePetals);
+
+    requestAnimationFrame(renderFX);
 }
-animatePetals();
+renderFX();
 </script>
 
 </body>
