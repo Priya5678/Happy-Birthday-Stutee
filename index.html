@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Happy Birthday Stutee</title>
 
 <style>
@@ -40,28 +40,27 @@ body{
 }
 
 /* ===================================================
-   OPEN SURPRISE SCREEN (GUARANTEES MUSIC PLAYS 100%)
+   OPEN SURPRISE SCREEN (HIGHEST Z-INDEX SO TAP WORKS 100%)
 =================================================== */
 .openScreen{
     position:fixed;
     inset:0;
-    z-index:10000;
+    z-index:99999; /* Highest priority: guarantees tap registers */
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
-    background:radial-gradient(circle at center, rgba(88, 28, 135, 0.96) 0%, rgba(36, 4, 63, 0.98) 100%);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
+    background:radial-gradient(circle at center, rgba(88, 28, 135, 0.97) 0%, rgba(36, 4, 63, 0.99) 100%);
     cursor:pointer;
-    transition:opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.7s;
+    transition:opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
     text-align:center;
     padding:20px;
+    touch-action:manipulation;
 }
 
 .openScreen.opened{
     opacity:0;
-    transform:scale(1.1);
+    transform:scale(1.08);
     visibility:hidden;
     pointer-events:none;
 }
@@ -70,6 +69,7 @@ body{
     font-size:75px;
     animation:giftBounce 1.5s infinite alternate ease-in-out;
     filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+    pointer-events:none;
 }
 
 @keyframes giftBounce{
@@ -84,6 +84,7 @@ body{
     letter-spacing:2px;
     color:#ffffff;
     text-shadow:0 0 15px #facc15, 0 3px 10px rgba(0,0,0,0.6);
+    pointer-events:none;
 }
 
 .openSub{
@@ -94,11 +95,12 @@ body{
     text-transform:uppercase;
     color:#fef08a;
     background:rgba(0,0,0,0.35);
-    padding:8px 24px;
+    padding:10px 26px;
     border-radius:30px;
-    border:1px solid rgba(253, 224, 71, 0.5);
+    border:1px solid rgba(253, 224, 71, 0.6);
     box-shadow:0 0 20px rgba(250, 204, 21, 0.4);
     animation:subPulse 2s infinite alternate;
+    pointer-events:none;
 }
 
 @keyframes subPulse{
@@ -107,7 +109,7 @@ body{
 }
 
 /* ===================================================
-   CANVAS: JUGNU (FIREFLIES), DUST & SUNFLOWER PETALS
+   CANVAS (LOWER Z-INDEX THAN OPEN SCREEN)
 =================================================== */
 #fxCanvas{
     position:fixed;
@@ -115,7 +117,7 @@ body{
     width:100%;
     height:100%;
     pointer-events:none;
-    z-index:9999;
+    z-index:50;
 }
 
 /* ===================================================
@@ -405,7 +407,7 @@ body{
 }
 
 /* =========================================================================
-   SLOW-MOTION TEXT ANIMATION (TRIGGERS AS SOON AS CARD OPENS)
+   SLOW-MOTION TEXT ANIMATION
 ========================================================================= */
 .textArea{
     margin-top:auto;
@@ -526,15 +528,15 @@ body{
 
 <body>
 
-<!-- 1-TAP SURPRISE OPENER SCREEN (GUARANTEES 100% MUSIC AUTOPLAY) -->
+<!-- 1-TAP SURPRISE OPENER SCREEN (FULL SCREEN CLICKABLE) -->
 <div class="openScreen" id="openScreen">
     <div class="openGift">🎁</div>
     <div class="openTitle">A Special Surprise For Stutee</div>
-    <div class="openSub">✨ Tap Anywhere to Open ✨</div>
+    <div class="openSub">✨ TAP ANYWHERE TO OPEN ✨</div>
 </div>
 
-<!-- AUDIO ELEMENT: aji_tor_din.mp3 -->
-<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" playsinline loop></audio>
+<!-- AUDIO: aji_tor_din.mp3 -->
+<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" playsinline></audio>
 
 <!-- MUSIC TOGGLE BUTTON -->
 <div class="musicBtn" id="musicBtn" title="Play/Pause Music">
@@ -605,7 +607,6 @@ const photos = [
 function bindImageSrc(imgElem, url) {
     let triedProxy = false;
     imgElem.referrerPolicy = "no-referrer";
-
     imgElem.onerror = function() {
         if (!triedProxy) {
             triedProxy = true;
@@ -678,27 +679,14 @@ setInterval(() => {
 }, SLIDE_MS);
 
 /* ============================================================
-   MUSIC & CARD UNLOCK CONTROLLER (aji_tor_din.mp3)
-
-   GOAL: the song should already be sounding the instant the site
-   opens, not only after a separate tap on the music button.
-
-   Browsers block audio.play() with sound before ANY user gesture,
-   but they always allow a MUTED autoplay. So: start the track
-   muted the moment the page loads (it is already playing in the
-   background, at position 0, buffered and ready). The very first
-   tap anywhere on the page — which is also the "open the card" tap
-   — simply unmutes it. There is no decode/buffer delay on that tap,
-   so the sound is heard instantly, and it feels like "opening the
-   website starts the song" rather than "clicking a button starts it".
-========================================================= */
+   CLICK ANYWHERE TO UNLOCK MUSIC & OPEN CARD (100% FIXED)
+============================================================ */
 const audio = document.getElementById("bgAudio");
 const musicBtn = document.getElementById("musicBtn");
 const musicIcon = document.getElementById("musicIcon");
 const openScreen = document.getElementById("openScreen");
 const mainCard = document.getElementById("mainCard");
-
-let experienceStarted = false;
+let isOpened = false;
 
 function updateMusicState(playing) {
     if (playing) {
@@ -710,64 +698,51 @@ function updateMusicState(playing) {
     }
 }
 
-// 1) Try to get the track silently running as soon as the page loads,
-//    so it's already primed and playing (muted) before any tap happens.
-audio.muted = true;
-audio.play().catch(() => { /* will retry on first user gesture below */ });
+function unlockAndOpen(e) {
+    if (isOpened) return;
+    isOpened = true;
 
-function openCard(x, y){
-    if (mainCard.classList.contains("cardActive")) return;
-    mainCard.classList.add("cardActive");
-    spawnPetalsAt(
-        typeof x === "number" ? x : window.innerWidth / 2,
-        typeof y === "number" ? y : window.innerHeight / 2
-    );
-}
-
-function startExperience(e) {
-    if (experienceStarted) return;
-    experienceStarted = true;
-
+    // 1. Hide the overlay screen immediately
     openScreen.classList.add("opened");
+    mainCard.classList.add("cardActive");
 
-    const x = (e && e.clientX) ? e.clientX : (e && e.touches && e.touches[0] ? e.touches[0].clientX : undefined);
-    const y = (e && e.clientY) ? e.clientY : (e && e.touches && e.touches[0] ? e.touches[0].clientY : undefined);
-    openCard(x, y);
-
-    // Unmute the already-playing track (instant — no play() delay),
-    // and make sure it's actually running in case the muted autoplay
-    // attempt above didn't succeed on this browser.
-    audio.muted = false;
-    const p = audio.play();
-    if (p && p.catch) {
-        p.then(() => updateMusicState(true)).catch(() => updateMusicState(false));
-    } else {
+    // 2. Play Audio directly
+    audio.play().then(() => {
         updateMusicState(true);
+    }).catch((err) => {
+        console.log("Audio play error:", err);
+        updateMusicState(false);
+    });
+
+    // 3. Spawn sunflower petals at touch/click position
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    if (e) {
+        if (e.touches && e.touches.length > 0) {
+            x = e.touches[0].clientX;
+            y = e.touches[0].clientY;
+        } else if (e.clientX !== undefined) {
+            x = e.clientX;
+            y = e.clientY;
+        }
     }
+    spawnPetalsAt(x, y);
 }
 
-// The tap on the open screen both reveals the card AND unmutes music
-openScreen.addEventListener("click", startExperience);
-openScreen.addEventListener("touchstart", startExperience, { passive: true });
+// Attach all touch & click listeners directly on openScreen
+openScreen.addEventListener("pointerdown", unlockAndOpen, { passive: false });
+openScreen.addEventListener("touchstart", unlockAndOpen, { passive: false });
+openScreen.addEventListener("click", unlockAndOpen, { passive: false });
 
-// Fallback: if the open screen is somehow bypassed, the very first
-// interaction anywhere on the page still starts the experience.
-document.addEventListener("click", startExperience, { once: true });
-document.addEventListener("touchstart", startExperience, { once: true, passive: true });
-
-// Auto-restart loop safety (in case "loop" attribute is unsupported)
+// Auto-stop when song finishes
 audio.addEventListener("ended", () => {
+    updateMusicState(false);
     audio.currentTime = 0;
-    audio.play().catch(() => updateMusicState(false));
 });
 
-// Manual toggle button (mute/unmute or pause/resume after the open tap)
+// Music toggle button
 musicBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (!experienceStarted) {
-        startExperience(e);
-        return;
-    }
     if (audio.paused) {
         audio.play().then(() => updateMusicState(true));
     } else {
@@ -881,7 +856,7 @@ class DustParticle {
     }
 }
 
-// SUNFLOWER PETALS
+// SUNFLOWER PETALS ON TOUCH
 class SunflowerPetal {
     constructor(x, y){
         this.x = x;
@@ -961,8 +936,11 @@ function spawnPetalsAt(x, y){
     }
 }
 
+// Also spawn petals on taps after card is opened
 window.addEventListener("pointerdown", (e) => {
-    spawnPetalsAt(e.clientX, e.clientY);
+    if (isOpened) {
+        spawnPetalsAt(e.clientX, e.clientY);
+    }
 });
 
 function renderFX(){
