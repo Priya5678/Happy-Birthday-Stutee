@@ -20,7 +20,7 @@ html,body{
 }
 
 /* ===================================================
-   ORIGINAL ROYAL LAVENDER & PURPLE BACKGROUND
+   LAVENDER PURPLE BACKGROUND
 =================================================== */
 body{
     overflow:hidden;
@@ -82,6 +82,43 @@ body{
     25%{ opacity:.9; }
     80%{ opacity:.7; }
     100%{ transform:translateY(-115vh) scale(1.3); opacity:0; }
+}
+
+/* ===================================================
+   FLOATING MUSIC CONTROLLER BUTTON
+=================================================== */
+.musicBtn{
+    position:fixed;
+    top:12px;
+    right:16px;
+    z-index:150;
+    background:rgba(36, 4, 63, 0.75);
+    border:1.5px solid rgba(253, 224, 71, 0.7);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    box-shadow:0 4px 15px rgba(0,0,0,0.5);
+    font-size:17px;
+    transition:transform 0.2s ease;
+}
+
+.musicBtn:active{
+    transform:scale(0.9);
+}
+
+.musicPlaying{
+    animation:pulseMusic 1.8s infinite;
+}
+
+@keyframes pulseMusic{
+    0%, 100%{ box-shadow:0 0 10px rgba(250, 204, 21, 0.5); }
+    50%{ box-shadow:0 0 22px rgba(250, 204, 21, 0.95); }
 }
 
 /* ===================================================
@@ -157,7 +194,7 @@ body{
 }
 
 /* ===================================================
-   MAIN CARD (PREMIUM LAVENDER GLASS)
+   MAIN CARD (LAVENDER GLASS)
 =================================================== */
 .card{
     position:relative;
@@ -204,7 +241,7 @@ body{
 }
 
 /* ===================================================
-   LARGE PHOTO AREA (ONLY PHOTO FRAME HAS MATCHING BLUR)
+   LARGE PHOTO AREA WITH MATCHING BLUR BACKDROP
 =================================================== */
 .photoArea{
     margin-top:16px;
@@ -271,7 +308,7 @@ body{
     background:#200338;
 }
 
-/* Matching Blurred Background for this specific photo inside frame */
+/* Matching Blurred Background inside frame */
 .frameBlurredBg{
     position:absolute;
     inset:-25px;
@@ -283,7 +320,7 @@ body{
     z-index:1;
 }
 
-/* Crisp Main Image (Completely visible without cropping) */
+/* Crisp Main Image */
 .mainImg{
     position:relative;
     z-index:2;
@@ -342,21 +379,45 @@ body{
     border:1px solid rgba(253, 224, 71, 0.35);
 }
 
-/* ===================================================
-   ANIMATED TEXT AREA (HAPPY BIRTHDAY STUTEE)
-=================================================== */
+/* =========================================================================
+   SLOW-MOTION TEXT ANIMATION:
+   Starts immediately ON THE PHOTO with bright golden bloom, 
+   then glides down in SLOW-MOTION to the bottom!
+========================================================================= */
 .textArea{
     margin-top:auto;
     margin-bottom:14px;
     width:100%;
     text-align:center;
     z-index:30;
-    animation:textEntry 1.4s cubic-bezier(.2,.8,.2,1) forwards;
+    /* 4.8 seconds slow-motion cinematic descent */
+    animation:slowMotionDescent 4.8s cubic-bezier(0.25, 1, 0.35, 1) forwards;
 }
 
-@keyframes textEntry{
-    0%{ opacity:0; transform:translateY(24px) scale(0.95); }
-    100%{ opacity:1; transform:translateY(0) scale(1); }
+@keyframes slowMotionDescent{
+    0%{
+        /* Visible immediately right on top of the photo */
+        opacity:1;
+        transform:translateY(-240px) scale(1.15);
+        filter:drop-shadow(0 0 30px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 50px rgba(255, 255, 255, 0.8));
+    }
+    30%{
+        /* Holds on the photo so user sees it right at opening */
+        opacity:1;
+        transform:translateY(-240px) scale(1.15);
+        filter:drop-shadow(0 0 25px rgba(250, 204, 21, 0.9));
+    }
+    70%{
+        /* Glides down gracefully in slow motion */
+        transform:translateY(-80px) scale(1.06);
+        filter:drop-shadow(0 0 15px rgba(250, 204, 21, 0.7));
+    }
+    100%{
+        /* Settles perfectly at bottom position */
+        opacity:1;
+        transform:translateY(0px) scale(1);
+        filter:drop-shadow(0 4px 15px rgba(0,0,0,0.5));
+    }
 }
 
 /* 1. Animated 'HAPPY' */
@@ -409,7 +470,7 @@ body{
     }
 }
 
-/* 3. Animated 'STUTEE' (Liquid Gold Wave Shimmer + Gentle 3D Float) */
+/* 3. Animated 'STUTEE' (Liquid Gold Wave + Gentle 3D Sway) */
 .nameText{
     margin-top:0px;
     font-size:clamp(42px, 11vw, 66px);
@@ -483,6 +544,14 @@ body{
 
 <body>
 
+<!-- AUDIO ELEMENT: aji_tor_din.mp3 -->
+<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" loop></audio>
+
+<!-- MUSIC TOGGLE BUTTON -->
+<div class="musicBtn" id="musicBtn" title="Play/Pause Music">
+    <span id="musicIcon">🎵</span>
+</div>
+
 <!-- CANVAS FOR TOUCH PETALS -->
 <canvas id="petalCanvas"></canvas>
 
@@ -513,12 +582,12 @@ body{
     <div class="flowerElem sunflower-bottom-left">🌻</div>
     <div class="flowerElem lavender-bottom-right">🪻</div>
 
-    <!-- LARGE PHOTO AREA (WITH SAME PHOTO BLURRED AS FRAME BACKDROP) -->
+    <!-- LARGE PHOTO AREA (WITH MATCHING BLURRED BACKDROP) -->
     <div class="photoArea" id="photoArea"></div>
 
     <div class="counter" id="counter">01 / 15</div>
 
-    <!-- ANIMATED BIRTHDAY TEXT -->
+    <!-- ANIMATED BIRTHDAY TEXT (APPEARS ON PHOTO, THEN GLIDES DOWN IN SLOW-MOTION) -->
     <div class="textArea">
         <div class="smallText">Happy</div>
         <div class="birthdayText">Birthday</div>
@@ -554,7 +623,7 @@ const photos = [
     "https://i.ibb.co/5grkKkj1/IMG-20260903-WA0006.jpg"
 ];
 
-// Image binding with auto-proxy failover
+// Helper to bind image sources with automatic proxy failover
 function bindImageSrc(imgElem, url) {
     let triedProxy = false;
     imgElem.referrerPolicy = "no-referrer";
@@ -634,6 +703,55 @@ setInterval(() => {
     current = (current + 1) % photos.length;
     showPhoto(current);
 }, SLIDE_MS);
+
+/* ============================================================
+   SONG HANDLER (aji_tor_din.mp3) - AUTOPLAYS ON LOAD / FIRST TOUCH
+============================================================ */
+const audio = document.getElementById("bgAudio");
+const musicBtn = document.getElementById("musicBtn");
+const musicIcon = document.getElementById("musicIcon");
+
+function triggerPlay() {
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            musicBtn.classList.add("musicPlaying");
+            musicIcon.textContent = "🔊";
+        }).catch(() => {
+            // Browser restricted autoplay without gesture
+            musicBtn.classList.remove("musicPlaying");
+            musicIcon.textContent = "🎵";
+        });
+    }
+}
+
+// 1. Try to autoplay as soon as page loads
+window.addEventListener("load", triggerPlay);
+document.addEventListener("DOMContentLoaded", triggerPlay);
+
+// 2. Fallback: Browser policy mandates touch/click gesture
+const unlockAudio = () => {
+    if (audio.paused) {
+        triggerPlay();
+    }
+};
+window.addEventListener("pointerdown", unlockAudio, { once: true });
+window.addEventListener("touchstart", unlockAudio, { once: true });
+window.addEventListener("click", unlockAudio, { once: true });
+
+// 3. Music Button Click (Toggle on/off)
+musicBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (audio.paused) {
+        audio.play();
+        musicBtn.classList.add("musicPlaying");
+        musicIcon.textContent = "🔊";
+    } else {
+        audio.pause();
+        musicBtn.classList.remove("musicPlaying");
+        musicIcon.textContent = "🔇";
+    }
+});
 
 /* ============================================================
    FALLING SUNFLOWER PETALS PHYSICS (ON TOUCH / CLICK)
