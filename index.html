@@ -530,11 +530,11 @@ body{
 <div class="openScreen" id="openScreen">
     <div class="openGift">🎁</div>
     <div class="openTitle">A Special Surprise For Stutee</div>
-    <div class="openSub">✨ Tap Anywhere to Open & Play Music 🎶 ✨</div>
+    <div class="openSub">✨ Tap Anywhere to Open ✨</div>
 </div>
 
 <!-- AUDIO ELEMENT: aji_tor_din.mp3 -->
-<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" playsinline></audio>
+<audio id="bgAudio" src="aji_tor_din.mp3" preload="auto" playsinline loop></audio>
 
 <!-- MUSIC TOGGLE BUTTON -->
 <div class="musicBtn" id="musicBtn" title="Play/Pause Music">
@@ -605,7 +605,7 @@ const photos = [
 function bindImageSrc(imgElem, url) {
     let triedProxy = false;
     imgElem.referrerPolicy = "no-referrer";
-    
+
     imgElem.onerror = function() {
         if (!triedProxy) {
             triedProxy = true;
@@ -679,12 +679,26 @@ setInterval(() => {
 
 /* ============================================================
    MUSIC & CARD UNLOCK CONTROLLER (aji_tor_din.mp3)
-============================================================ */
+
+   GOAL: the song should already be sounding the instant the site
+   opens, not only after a separate tap on the music button.
+
+   Browsers block audio.play() with sound before ANY user gesture,
+   but they always allow a MUTED autoplay. So: start the track
+   muted the moment the page loads (it is already playing in the
+   background, at position 0, buffered and ready). The very first
+   tap anywhere on the page — which is also the "open the card" tap
+   — simply unmutes it. There is no decode/buffer delay on that tap,
+   so the sound is heard instantly, and it feels like "opening the
+   website starts the song" rather than "clicking a button starts it".
+========================================================= */
 const audio = document.getElementById("bgAudio");
 const musicBtn = document.getElementById("musicBtn");
 const musicIcon = document.getElementById("musicIcon");
 const openScreen = document.getElementById("openScreen");
 const mainCard = document.getElementById("mainCard");
+
+let experienceStarted = false;
 
 function updateMusicState(playing) {
     if (playing) {
@@ -696,46 +710,64 @@ function updateMusicState(playing) {
     }
 }
 
+// 1) Try to get the track silently running as soon as the page loads,
+//    so it's already primed and playing (muted) before any tap happens.
+audio.muted = true;
+audio.play().catch(() => { /* will retry on first user gesture below */ });
+
+function openCard(x, y){
+    if (mainCard.classList.contains("cardActive")) return;
+    mainCard.classList.add("cardActive");
+    spawnPetalsAt(
+        typeof x === "number" ? x : window.innerWidth / 2,
+        typeof y === "number" ? y : window.innerHeight / 2
+    );
+}
+
 function startExperience(e) {
-    if (!openScreen.classList.contains("opened")) {
-        openScreen.classList.add("opened");
-        mainCard.classList.add("cardActive");
+    if (experienceStarted) return;
+    experienceStarted = true;
 
-        // Spawn beautiful petals burst
-        const x = (e && e.clientX) ? e.clientX : window.innerWidth / 2;
-        const y = (e && e.clientY) ? e.clientY : window.innerHeight / 2;
-        spawnPetalsAt(x, y);
+    openScreen.classList.add("opened");
 
-        // Instantly start song with 100% browser approval
-        audio.play().then(() => {
-            updateMusicState(true);
-        }).catch(() => {
-            updateMusicState(false);
-        });
+    const x = (e && e.clientX) ? e.clientX : (e && e.touches && e.touches[0] ? e.touches[0].clientX : undefined);
+    const y = (e && e.clientY) ? e.clientY : (e && e.touches && e.touches[0] ? e.touches[0].clientY : undefined);
+    openCard(x, y);
+
+    // Unmute the already-playing track (instant — no play() delay),
+    // and make sure it's actually running in case the muted autoplay
+    // attempt above didn't succeed on this browser.
+    audio.muted = false;
+    const p = audio.play();
+    if (p && p.catch) {
+        p.then(() => updateMusicState(true)).catch(() => updateMusicState(false));
+    } else {
+        updateMusicState(true);
     }
 }
 
-// Check if browser allows unprompted autoplay right away
-audio.play().then(() => {
-    // If permitted automatically without gesture, open immediately!
-    openScreen.classList.add("opened");
-    mainCard.classList.add("cardActive");
-    updateMusicState(true);
-}).catch(() => {
-    // Chrome/Safari strict policy -> wait for 1 touch anywhere on screen
-    openScreen.addEventListener("click", startExperience);
-    openScreen.addEventListener("touchstart", startExperience, { passive: true });
-});
+// The tap on the open screen both reveals the card AND unmutes music
+openScreen.addEventListener("click", startExperience);
+openScreen.addEventListener("touchstart", startExperience, { passive: true });
 
-// Auto-stop when song finishes
+// Fallback: if the open screen is somehow bypassed, the very first
+// interaction anywhere on the page still starts the experience.
+document.addEventListener("click", startExperience, { once: true });
+document.addEventListener("touchstart", startExperience, { once: true, passive: true });
+
+// Auto-restart loop safety (in case "loop" attribute is unsupported)
 audio.addEventListener("ended", () => {
-    updateMusicState(false);
     audio.currentTime = 0;
+    audio.play().catch(() => updateMusicState(false));
 });
 
-// Music toggle button
+// Manual toggle button (mute/unmute or pause/resume after the open tap)
 musicBtn.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (!experienceStarted) {
+        startExperience(e);
+        return;
+    }
     if (audio.paused) {
         audio.play().then(() => updateMusicState(true));
     } else {
