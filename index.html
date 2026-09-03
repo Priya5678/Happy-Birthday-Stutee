@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Happy Birthday Stutee</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    font-family:"Georgia", serif;
+    background:
+        radial-gradient(circle at 20% 20%, #d8b4fe 0%, transparent 25%),
+        radial-gradient(circle at 80% 80%, #a855f7 0%, transparent 30%),
+        linear-gradient(135deg,#3b0764,#6b21a8,#c084fc);
+}
+
+/* Floating light particles */
+.particle{
+    position:absolute;
+    width:8px;
+    height:8px;
+    background:white;
+    border-radius:50%;
+    opacity:.7;
+    box-shadow:0 0 15px white;
+    animation:float 7s infinite ease-in-out;
+}
+
+.particle:nth-child(1){left:8%;top:15%;animation-delay:0s}
+.particle:nth-child(2){left:90%;top:10%;animation-delay:2s}
+.particle:nth-child(3){left:15%;top:85%;animation-delay:1s}
+.particle:nth-child(4){left:85%;top:75%;animation-delay:3s}
+.particle:nth-child(5){left:50%;top:8%;animation-delay:4s}
+.particle:nth-child(6){left:5%;top:50%;animation-delay:2.5s}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0) scale(1);
+        opacity:.4;
+    }
+    50%{
+        transform:translateY(-70px) scale(1.8);
+        opacity:1;
+    }
+}
+
+/* Premium Card */
+.card{
+    position:relative;
+    width:min(88vw,500px);
+    min-height:650px;
+    padding:50px 25px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    overflow:hidden;
+    border-radius:35px;
+
+    background:linear-gradient(
+        145deg,
+        rgba(255,255,255,.22),
+        rgba(255,255,255,.07)
+    );
+
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+
+    border:1px solid rgba(255,255,255,.45);
+
+    box-shadow:
+        0 25px 80px rgba(0,0,0,.45),
+        inset 0 1px 1px rgba(255,255,255,.5);
+
+    animation:cardEntry 1.8s cubic-bezier(.17,.67,.3,1.33);
+}
+
+@keyframes cardEntry{
+    0%{
+        opacity:0;
+        transform:scale(.5) rotateY(40deg);
+    }
+    100%{
+        opacity:1;
+        transform:scale(1) rotateY(0);
+    }
+}
+
+/* Golden premium border */
+.card::before{
+    content:"";
+    position:absolute;
+    inset:12px;
+    border-radius:27px;
+    border:1px solid rgba(255,215,120,.75);
+    pointer-events:none;
+}
+
+/* Shine effect */
+.card::after{
+    content:"";
+    position:absolute;
+    width:80px;
+    height:140%;
+    top:-20%;
+    left:-150px;
+    background:rgba(255,255,255,.22);
+    transform:rotate(20deg);
+    animation:shine 5s infinite;
+}
+
+@keyframes shine{
+    0%{left:-150px}
+    50%,100%{left:130%}
+}
+
+/* Decorative flowers */
+.flower{
+    position:absolute;
+    font-size:75px;
+    filter:drop-shadow(0 10px 10px rgba(0,0,0,.3));
+    animation:sway 4s infinite ease-in-out;
+}
+
+.flower1{
+    top:25px;
+    left:20px;
+    transform:rotate(-20deg);
+}
+
+.flower2{
+    bottom:20px;
+    right:15px;
+    transform:rotate(20deg);
+}
+
+.flower3{
+    top:40px;
+    right:25px;
+    font-size:55px;
+}
+
+.flower4{
+    bottom:25px;
+    left:20px;
+    font-size:55px;
+}
+
+@keyframes sway{
+    0%,100%{
+        transform:rotate(-8deg) scale(1);
+    }
+    50%{
+        transform:rotate(8deg) scale(1.08);
+    }
+}
+
+/* Content */
+.content{
+    position:relative;
+    z-index:2;
+    animation:contentReveal 2.5s ease forwards;
+}
+
+@keyframes contentReveal{
+    0%{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    100%{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.happy{
+    font-family:Arial,sans-serif;
+    font-size:clamp(24px,6vw,35px);
+    letter-spacing:7px;
+    text-transform:uppercase;
+    color:#fef3c7;
+    text-shadow:
+        0 0 10px rgba(255,255,255,.6),
+        0 0 30px #fbbf24;
+
+    animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+    from{
+        text-shadow:0 0 10px white,0 0 20px #fbbf24;
+    }
+    to{
+        text-shadow:0 0 20px white,0 0 45px #f59e0b;
+    }
+}
+
+.birthday{
+    margin-top:18px;
+    font-size:clamp(42px,11vw,68px);
+    font-weight:bold;
+    color:#fff;
+    line-height:1.1;
+
+    text-shadow:
+        0 4px 0 #7e22ce,
+        0 10px 30px rgba(0,0,0,.4);
+
+    animation:textZoom 1.5s ease;
+}
+
+@keyframes textZoom{
+    0%{
+        opacity:0;
+        transform:scale(.2);
+    }
+    70%{
+        transform:scale(1.15);
+    }
+    100%{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+.name{
+    margin-top:22px;
+    font-size:clamp(48px,14vw,85px);
+    font-style:italic;
+    font-weight:bold;
+
+    background:linear-gradient(
+        90deg,
+        #ffffff,
+        #fef3c7,
+        #fde68a,
+        #ffffff
+    );
+
+    background-size:300%;
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    filter:drop-shadow(0 5px 10px rgba(0,0,0,.4));
+
+    animation:
+        nameEntry 2.3s ease,
+        gradientMove 4s infinite linear;
+}
+
+@keyframes nameEntry{
+    0%,40%{
+        opacity:0;
+        transform:translateY(80px);
+    }
+    100%{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes gradientMove{
+    from{background-position:0%}
+    to{background-position:300%}
+}
+
+/* Sparkles */
+.sparkle{
+    position:absolute;
+    color:#fff;
+    font-size:20px;
+    animation:spark 2s infinite;
+}
+
+.s1{top:22%;left:18%}
+.s2{top:30%;right:16%;animation-delay:.5s}
+.s3{bottom:25%;left:20%;animation-delay:1s}
+.s4{bottom:18%;right:22%;animation-delay:1.5s}
+
+@keyframes spark{
+    0%,100%{
+        opacity:.2;
+        transform:scale(.5) rotate(0);
+    }
+    50%{
+        opacity:1;
+        transform:scale(1.5) rotate(180deg);
+    }
+}
+
+/* Mobile */
+@media(max-width:500px){
+    .card{
+        min-height:580px;
+        padding:40px 15px;
+    }
+
+    .flower{
+        font-size:55px;
+    }
+
+    .flower3,.flower4{
+        font-size:42px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+
+<div class="card">
+
+    <!-- Flowers -->
+    <div class="flower flower1">🌸</div>
+    <div class="flower flower2">🌻</div>
+    <div class="flower flower3">🌺</div>
+    <div class="flower flower4">🌻</div>
+
+    <!-- Sparkles -->
+    <div class="sparkle s1">✦</div>
+    <div class="sparkle s2">✧</div>
+    <div class="sparkle s3">✦</div>
+    <div class="sparkle s4">✧</div>
+
+    <!-- Text -->
+    <div class="content">
+        <div class="happy">Happy</div>
+
+        <div class="birthday">
+            Birthday
+        </div>
+
+        <div class="name">
+            Stutee
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
